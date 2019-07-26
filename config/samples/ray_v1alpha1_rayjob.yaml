@@ -1,0 +1,7 @@
+apiVersion: ray.kubeflow.org/v1alpha1
+kind: RayJob
+metadata:
+  name: rayjob-sample
+spec:
+  # Add fields here
+  foo: bar

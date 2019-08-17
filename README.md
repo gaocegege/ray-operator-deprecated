@@ -2,6 +2,18 @@
 
 This operator is still in early stage, do not use it in prod.
 
+Table of Contents
+=================
+
+   * [ray-operator](#ray-operator)
+      * [Clone](#clone)
+      * [Build](#build)
+      * [HOWTO](#howto)
+      * [Design](#design)
+      * [LoC](#loc)
+
+Created by [gh-md-toc](https://github.com/ekalinin/github-markdown-toc)
+
 ## Clone
 
 ```

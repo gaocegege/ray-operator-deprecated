@@ -2,9 +2,18 @@
 
 This operator is still in early stage, do not use it in prod.
 
+## Clone
+
+```
+git clone https://github.com/gaocegege/ray-operator
+mkdir -p $GOPATH/src/github.com/kubeflow/
+mv ./ray-operator $GOPATH/src/github.com/kubeflow/
+```
+
 ## Build
 
 ```sh
+cd $GOPATH/src/github.com/kubeflow/ray-operator
 build
 ```
 
@@ -136,3 +145,21 @@ It shows the the most recently observed status of the Head and Worker. In this c
 ## Design
 
 [Design Document](./docs/design.md)
+
+## LoC
+
+```sh
+cloc . --exclude-dir=vendor,docs,config,hack --exclude-lang=Markdown,make,Dockerfile
+21 text files.
+21 unique files.                              
+8 files ignored.
+
+github.com/AlDanial/cloc v 1.74  T=0.04 s (324.6 files/s, 31442.0 lines/s)
+-------------------------------------------------------------------------------
+Language                     files          blank        comment           code
+-------------------------------------------------------------------------------
+Go                              14            188            196            972
+-------------------------------------------------------------------------------
+SUM:                            14            188            196            972
+-------------------------------------------------------------------------------
+```

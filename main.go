@@ -20,23 +20,26 @@ import (
 	"flag"
 	"os"
 
-	rayv1alpha1 "github.com/kubeflow/ray-operator/api/v1alpha1"
-	"github.com/kubeflow/ray-operator/controllers"
-	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes/scheme"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+
 	// +kubebuilder:scaffold:imports
+
+	rayv1 "github.com/kubeflow/ray-operator/api/v1"
+	"github.com/kubeflow/ray-operator/controllers"
+	"github.com/kubeflow/ray-operator/pkg/composer"
+	"github.com/kubeflow/ray-operator/pkg/validator"
 )
 
 var (
-	scheme   = runtime.NewScheme()
-	setupLog = ctrl.Log.WithName("setup")
+	k8sScheme = scheme.Scheme
+	setupLog  = ctrl.Log.WithName("setup")
 )
 
 func init() {
-
-	rayv1alpha1.AddToScheme(scheme)
+	_ = rayv1.AddToScheme(k8sScheme)
 	// +kubebuilder:scaffold:scheme
 }
 
@@ -51,7 +54,7 @@ func main() {
 	ctrl.SetLogger(zap.Logger(true))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:             scheme,
+		Scheme:             k8sScheme,
 		MetricsBindAddress: metricsAddr,
 		LeaderElection:     enableLeaderElection,
 	})
@@ -60,12 +63,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = (&controllers.RayJobReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("RayJob"),
-	}).SetupWithManager(mgr)
-	if err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "RayJob")
+	composer := composer.New(
+		mgr.GetEventRecorderFor(composer.ComposerName),
+		ctrl.Log.WithName(composer.ComposerName),
+		mgr.GetScheme(),
+	)
+	validator := validator.New(
+		mgr.GetEventRecorderFor(validator.ValidatorName),
+		ctrl.Log.WithName(validator.ValidatorName),
+	)
+
+	if err := (&controllers.RayReconciler{
+		Client:        mgr.GetClient(),
+		EventRecorder: mgr.GetEventRecorderFor(controllers.ControllerName),
+		Composer:      composer,
+		Validator:     validator,
+		Log:           ctrl.Log.WithName(controllers.ControllerName).WithName("Ray"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "Ray")
 		os.Exit(1)
 	}
 	// +kubebuilder:scaffold:builder

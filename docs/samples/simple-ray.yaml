@@ -1,0 +1,7 @@
+apiVersion: ray.kubeflow.org/v1
+kind: Ray
+metadata:
+  name: sample-cluster
+spec:
+  worker:
+    replicas: 3

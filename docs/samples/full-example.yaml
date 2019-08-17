@@ -1,0 +1,57 @@
+apiVersion: ray.kubeflow.org/v1
+kind: Ray
+metadata:
+  name: sample-cluster
+spec:
+  head:
+    replicas: 1
+    template:
+      spec:
+        containers:
+          - name: ray-head
+            image: rayproject/examples:1
+            command: [ "/bin/bash", "-c", "--" ]
+            args: ["ray start --head --redis-port=6379 --redis-shard-ports=6380,6381 --object-manager-port=12345 --node-manager-port=12346 --node-ip-address=$RAY_NODE_IP --block"]
+            ports:
+              - containerPort: 6379
+              - containerPort: 6380
+              - containerPort: 6381
+              - containerPort: 12345
+              - containerPort: 12346
+            # The environment variables `RAY_NODE_IP` will be injected automatically by the operator.
+            # env:
+            #   - name: RAY_NODE_IP
+            #     valueFrom:
+            #       fieldRef:
+            #         fieldPath: status.podIP
+            resources:
+              requests:
+                cpu: 500m
+              limit:
+                cpu: 1
+  worker:
+    replicas: 3
+    template:
+      spec:
+        containers:
+          - name: ray-worker
+            image: rayproject/examples:1
+            command: ["/bin/bash", "-c", "--"]
+            args: ["ray start --node-ip-address=$MY_POD_IP --redis-address=$(python -c 'import socket;import sys;import os; sys.stdout.write(socket.gethostbyname(os.environ[\"RAY_HEAD_SERVICE\"]));sys.stdout.flush()'):6379 --object-manager-port=12345 --node-manager-port=12346 --block"]
+            ports:
+              - containerPort: 12345
+              - containerPort: 12346
+            # The environment variables `RAY_HEAD_SERVICE` and `RAY_NODE_IP`
+            # will be injected automatically by the operator.
+            # env:
+            #   - name: RAY_HEAD_SERVICE
+            #     value: <ray-head-service-name>
+            #   - name: RAY_NODE_IP
+            #     valueFrom:
+            #       fieldRef:
+            #         fieldPath: status.podIP
+            resources:
+              requests:
+                cpu: 500m
+              limit:
+                cpu: 1

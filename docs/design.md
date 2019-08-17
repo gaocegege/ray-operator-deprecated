@@ -82,7 +82,7 @@ spec:
           - name: ray-worker
             image: rayproject/examples
             command: ["/bin/bash", "-c", "--"]
-            args: ["ray start --node-ip-address=$MY_POD_IP --redis-address=$(python -c 'import socket;import sys;import os; sys.stdout.write(socket.gethostbyname(os.environ[\"RAY_HEAD_SERVICE\"]));sys.stdout.flush()'):6379 --object-manager-port=12345 --node-manager-port=12346 --block"]
+            args: ["ray start --node-ip-address=$RAY_NODE_IP --redis-address=$(python -c 'import socket;import sys;import os; sys.stdout.write(socket.gethostbyname(os.environ[\"RAY_HEAD_SERVICE\"]));sys.stdout.flush()'):6379 --object-manager-port=12345 --node-manager-port=12346 --block"]
             ports:
               - containerPort: 12345
               - containerPort: 12346

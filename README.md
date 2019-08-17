@@ -43,7 +43,7 @@ spec:
       spec:
         containers:
           - name: ray-head
-            image: rayproject/examples:1
+            image: rayproject/examples
             command: [ "/bin/bash", "-c", "--" ]
             args: ["ray start --head --redis-port=6379 --redis-shard-ports=6380,6381 --object-manager-port=12345 --node-manager-port=12346 --node-ip-address=$RAY_NODE_IP --block"]
             ports:
@@ -63,7 +63,7 @@ spec:
       spec:
         containers:
           - name: ray-worker
-            image: rayproject/examples:1
+            image: rayproject/examples
             command: ["/bin/bash", "-c", "--"]
             args: ["ray start --node-ip-address=$MY_POD_IP --redis-address=$(python -c 'import socket;import sys;import os; sys.stdout.write(socket.gethostbyname(os.environ[\"RAY_HEAD_SERVICE\"]));sys.stdout.flush()'):6379 --object-manager-port=12345 --node-manager-port=12346 --block"]
             ports:
